@@ -71,12 +71,17 @@ def optimize_iminuit(parameters, function, store_trace=False, **kwargs):
         Tuple containing the best fit factors, some information and the optimizer instance.
     """
     migrad_opts = kwargs.pop("migrad_opts", {})
+    minuit_opts = kwargs.pop("minuit_opts", {})
+    run_hesse = minuit_opts.pop("method", "").lower() == "hesse"
 
     minuit, minuit_func = setup_iminuit(
         parameters=parameters, function=function, store_trace=store_trace, **kwargs
     )
 
     minuit.migrad(**migrad_opts)
+
+    if run_hesse:
+        minuit.hesse()
 
     factors = minuit.values
     info = {
